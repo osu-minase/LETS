@@ -1,7 +1,6 @@
 ## LETS
 
 - Origin: https://zxq.co/ripple/lets
-- Mirror: https://github.com/osuripple/lets
 
 ## Loving Every Things in your Sister
 This server handles every non real time client feature, so:
