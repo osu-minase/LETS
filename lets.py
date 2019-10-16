@@ -302,5 +302,6 @@ if __name__ == "__main__":
 	finally:
 		# Perform some clean up
 		print("> Disposing server... ")
+		log.logMessage("OSS stoping!", discord="bunker", stdout=False)
 		glob.fileBuffers.flushAll()
 		consoleHelper.printColored("Goodbye!", bcolors.GREEN)
