@@ -294,7 +294,7 @@ if __name__ == "__main__":
 
 		# Server start message and console output
 		consoleHelper.printColored("> L.E.T.S. is listening for clients on {}:{}...".format(glob.conf.config["server"]["host"], serverPort), bcolors.GREEN)
-		log.logMessage("Server started!", discord="bunker", stdout=False)
+		log.logMessage("OSS started!", discord="bunker", stdout=False)
 
 		# Start Tornado
 		glob.application.listen(serverPort, address=glob.conf.config["server"]["host"])

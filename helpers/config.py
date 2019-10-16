@@ -148,6 +148,13 @@ class config:
 		self.config.add_section("custom")
 		self.config.set("custom", "config", "common/config.json")
 
+		self.config.add_section("webhooks")
+		self.config.set("webhooks", "confidential", "")
+		self.config.set("webhooks", "staff", "")
+		self.config.set("webhooks", "general", "")
+		self.config.set("webhooks", "chatlog", "")
+		self.config.set("webhooks", "cm", "")
+
 		# Write ini to file and close
 		self.config.write(f)
 		f.close()
