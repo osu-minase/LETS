@@ -173,7 +173,7 @@ class handler(requestsManager.asyncRequestHandler):
 			# Check notepad hack
 			if bmk is None and bml is None:
 				# No bmk and bml params passed, edited or super old client
-				#log.warning("{} ({}) most likely submitted a score from an edited client or a super old client".format(username, userID), "cm")
+				# log.warning("{} ({}) most likely submitted a score from an edited client or a super old client".format(username, userID), "cm")
 				pass
 			elif bmk != bml and not restricted:
 				# bmk and bml passed and they are different, restrict the user
@@ -215,33 +215,6 @@ class handler(requestsManager.asyncRequestHandler):
 				userHelper.appendNotes(userID, "-- Restricted due to clientside anti cheat flag ({}) (cheated score id: {})".format(haxFlags, s.scoreID))
 				log.warning("**{}** ({}) has been restricted due clientside anti cheat flag **({})**".format(username, userID, haxFlags), "cm")'''
 
-			# Mi stavo preparando per scendere
-			# Mi stavo preparando per comprare i dolci
-			# Oggi e' il compleanno di mio nipote
-			# Dovevamo festeggiare staseraaaa
-			# ----
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# --- (io sto angora in ganottier ecche qua) ---
-			# Sono scesa e ho visto ilpalazzochesenee'caduto
-			# Ho preso a mio cognato, che stava svenuto
-			# Mia figlia e' scesa, mia figlia ha urlato
-			# "C'e' qualcuno sotto, C'e' qualcuno sotto"
-			# "C'e' qualcuno sotto, C'e' qualcuno sottoooooooooo"
-			# --- (scusatm che sto angor emozzionat non parlo ancora moltobbene) ---
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# Da un momento all'altro ho sentito una signora
-			# Correte, correte se ne e' sceso un muro
-			# -- THIS IS THE PART WITH THE GOOD SOLO (cit <3) --
-			# Vedete quel palazzo la' vicino
-			# Se ne sta scendendo un po' alla volta
-			# Piano piano, devono prendere provvedimenti
-			# Al centro qua hanno fatto una bella ristrututuitriazione
-			# Hanno mess le panghina le fondane iffiori
-			# LALALALALALALALALA
 			if s.score < 0 or s.score > (2 ** 63) - 1:
 				userUtils.ban(userID)
 				userUtils.appendNotes(userID, "Banned due to negative score (score submitter)")
@@ -251,7 +224,6 @@ class handler(requestsManager.asyncRequestHandler):
 				userUtils.ban(userID)
 				userUtils.appendNotes(userID, "Banned due to mania score > 1000000 (score submitter)")
 
-			# Ci metto la faccia, ci metto la testa e ci metto il mio cuore
 			if ((s.mods & mods.DOUBLETIME) > 0 and (s.mods & mods.HALFTIME) > 0) \
 					or ((s.mods & mods.HARDROCK) > 0 and (s.mods & mods.EASY) > 0)\
 					or ((s.mods & mods.SUDDENDEATH) > 0 and (s.mods & mods.NOFAIL) > 0):
@@ -443,7 +415,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank == 1 and s.completed == 3 and not restricted:
-					annmsg = "[https://ripple.moe/?u={} {}] achieved rank #1 on [https://osu.ppy.sh/b/{} {}] ({})".format(
+					annmsg = "[https://minase.tk/u/{} {}] поставил новый #1 скор на карте [https://minase.tk/b/{} {}] ({})".format(
 						userID,
 						username.encode().decode("ASCII", "ignore"),
 						beatmapInfo.beatmapID,
@@ -452,6 +424,15 @@ class handler(requestsManager.asyncRequestHandler):
 					)
 					params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 					requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
+
+					# glob.redis.publish("peppy:new_top_score", json.dumps({
+					# 	"userID": userID,
+					# 	"username": username.encode().decode("ASCII", "ignore"),
+					# 	"beetmapId": beatmapInfo.beatmapID,
+					# 	"beetmapTitle": beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+					# 	"game_mode": s.gameMode,
+					# 	"pp": s.pp,
+					# }))
 
 				# Write message to client
 				self.write(output)
