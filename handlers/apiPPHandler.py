@@ -130,7 +130,7 @@ class handler(requestsManager.asyncRequestHandler):
 			# Data to return
 			data = {
 				"song_name": bmap.songName,
-				"pp": [x for x in returnPP] if type(returnPP) is list else returnPP,
+				"pp": [round(x, 2) for x in returnPP] if type(returnPP) is list else returnPP,
 				"length": bmap.hitLength,
 				"stars": bmap.starsStd,
 				"ar": bmap.AR,
