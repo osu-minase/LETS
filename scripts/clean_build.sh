@@ -2,6 +2,7 @@
 
 echo "Building opai-ng"
 cd ./pp/oppai-ng
+git stash # fixme
 ./build
 # and return back
 cd -
