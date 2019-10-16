@@ -11,3 +11,7 @@ echo "Installing deps..."
 # apt install python3-mysqldb python-dev libmysqlclient-dev -y
 
 pip3 install -r requirements.txt
+
+echo "Installing opai-ng"
+
+./pp/oppai-ng/build
