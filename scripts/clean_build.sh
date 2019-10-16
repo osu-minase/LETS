@@ -1,8 +1,10 @@
 #!/bin/bash
 
 echo "Building opai-ng"
-./pp/oppai-ng/build
-
+cd ./pp/oppai-ng
+./build
+# and return back
+cd -
 
 echo "Building Cython code"
 
