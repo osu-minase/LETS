@@ -32,4 +32,5 @@ schiavo = schiavo.schiavo()
 achievementClasses = {}
 
 # Additional modifications
-COMMON_VERSION = "1.2.1"
+COMMON_VERSION_REQ = "1.2.1"
+COMMON_VERSION = COMMON_VERSION_REQ
