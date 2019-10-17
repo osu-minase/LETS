@@ -81,7 +81,7 @@ def make_app():
 		(r"/api/v1/pp", apiPPHandler.handler),
 		(r"/api/v1/cacheBeatmap", apiCacheBeatmapHandler.handler),
 
-		(r"/letsapi/v1/status", apiStatusHandler.handler),
+		(r"/letsapi/v1/status", apiStatusHandler.handler),#
 		(r"/letsapi/v1/pp", apiPPHandler.handler),
 		(r"/letsapi/v1/cacheBeatmap", apiCacheBeatmapHandler.handler),
 
