@@ -415,7 +415,7 @@ class handler(requestsManager.asyncRequestHandler):
 
 				# send message to #announce if we're rank #1
 				if newScoreboard.personalBestRank == 1 and s.completed == 3 and not restricted:
-					annmsg = "[https://minase.tk/u/{} {}] поставил новый #1 скор на карте [https://minase.tk/b/{} {}] ({})".format(
+					annmsg = "[https://minase.tk/u/{} {}] achieved rank #1 on [https://minase.tk/b/{} {}] ({})".format(
 						userID,
 						username.encode().decode("ASCII", "ignore"),
 						beatmapInfo.beatmapID,
@@ -425,14 +425,14 @@ class handler(requestsManager.asyncRequestHandler):
 					params = urlencode({"k": glob.conf.config["server"]["apikey"], "to": "#announce", "msg": annmsg})
 					requests.get("{}/api/v1/fokabotMessage?{}".format(glob.conf.config["server"]["banchourl"], params))
 
-					# glob.redis.publish("peppy:new_top_score", json.dumps({
-					# 	"userID": userID,
-					# 	"username": username.encode().decode("ASCII", "ignore"),
-					# 	"beetmapId": beatmapInfo.beatmapID,
-					# 	"beetmapTitle": beatmapInfo.songName.encode().decode("ASCII", "ignore"),
-					# 	"game_mode": s.gameMode,
-					# 	"pp": s.pp,
-					# }))
+					glob.redis.publish("peppy:new_top_score", json.dumps({
+						"userID": userID,
+						"username": username.encode().decode("ASCII", "ignore"),
+						"beetmapId": beatmapInfo.beatmapID,
+						"beetmapTitle": beatmapInfo.songName.encode().decode("ASCII", "ignore"),
+						"game_mode": s.gameMode,
+						"pp": s.pp,
+					}))
 
 				# Write message to client
 				self.write(output)
