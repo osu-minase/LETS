@@ -52,7 +52,7 @@ class oppai:
 		self.score = None
 		self.acc = 0
 		self.mods = 0
-		self.combo = -1	#FC
+		self.combo = 0
 		self.misses = 0
 		self.stars = 0
 		self.tillerino = tillerino
@@ -133,7 +133,7 @@ class oppai:
 					command += " {acc:.2f}%".format(acc=self.acc)
 			if self.mods > 0:
 				command += " +{mods}".format(mods=scoreUtils.readableMods(modsFixed))
-			if self.combo >= 0:
+			if self.combo > 0:
 				command += " {combo}x".format(combo=self.combo)
 			if self.misses > 0:
 				command += " {misses}xm".format(misses=self.misses)

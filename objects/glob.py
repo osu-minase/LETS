@@ -19,6 +19,7 @@ application = None
 pool = None
 pascoa = {}
 
+busyThreads = 0
 debug = False
 sentry = False
 
@@ -30,7 +31,3 @@ fileBuffers = fileBuffer.buffersList()
 dog = datadogClient.datadogClient()
 schiavo = schiavo.schiavo()
 achievementClasses = {}
-
-# Additional modifications
-COMMON_VERSION_REQ = "1.2.1"
-COMMON_VERSION = COMMON_VERSION_REQ

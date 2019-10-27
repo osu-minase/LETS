@@ -4,7 +4,12 @@ import tornado.web
 
 from objects import beatmap
 from objects import scoreboard
+from objects import scoreboardRelax
+from objects import scoreboardRelaxScore
+from objects import scoreboardAuto
+from objects import scoreboardAutoScore
 from common.constants import privileges
+from constants import rankedStatuses
 from common.log import logUtils as log
 from common.ripple import userUtils
 from common.web import requestsManager
@@ -34,8 +39,8 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Check required arguments
 			if not requestsManager.checkArguments(
-					self.request.arguments,
-					["c", "f", "i", "m", "us", "v", "vv", "mods"]
+				self.request.arguments,
+				["c", "f", "i", "m", "us", "v", "vv", "mods"]
 			):
 				raise exceptions.invalidArgumentsException(MODULE_NAME)
 
@@ -72,6 +77,8 @@ class handler(requestsManager.asyncRequestHandler):
 			country = False
 			friends = False
 			modsFilter = -1
+			mods = int(self.get_argument("mods"))
+
 			if scoreboardType == 4:
 				# Country leaderboard
 				country = True
@@ -79,9 +86,6 @@ class handler(requestsManager.asyncRequestHandler):
 				# Mods leaderboard, replace mods (-1, every mod) with "mods" GET parameters
 				modsFilter = int(self.get_argument("mods"))
 
-				# Disable automod (pp sort) if we are not donors
-				if not isDonor:
-					modsFilter = modsFilter & ~mods.AUTOPLAY
 			elif scoreboardType == 3 and isDonor:
 				# Friends leaderboard
 				friends = True
@@ -92,27 +96,41 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Create beatmap object and set its data
 			bmap = beatmap.beatmap(md5, beatmapSetID, gameMode)
+			b = beatmap.beatmap(md5, 0)
 
-			# Create leaderboard object, link it to bmap and get all scores
-			sboard = scoreboard.scoreboard(
+			if b.rankedStatus == rankedStatuses.PENDING:
+				if bool(mods & 128):
+					sboard = scoreboardRelaxScore.scoreboardRelax(
 					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
-			)
+					)
+				elif bool(mods & 8192):
+					sboard = scoreboardAutoScore.scoreboardAuto(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				else:
+					sboard = scoreboard.scoreboard(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+			else:
+				# Create leaderboard object, link it to bmap and get all scores
+				if bool(mods & 128):
+					sboard = scoreboardRelax.scoreboardRelax(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				elif bool(mods & 8192):
+					sboard = scoreboardAuto.scoreboardAuto(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
+				else:
+					sboard = scoreboard.scoreboard(
+					username, gameMode, bmap, setScores=True, country=country, mods=modsFilter, friends=friends
+					)
 
 			# Data to return
 			data = ""
 			data += bmap.getData(sboard.totalScores, scoreboardVersion)
 			data += sboard.getScoresData()
 			self.write(data)
-
-			# Send bancho notification if needed
-			if modsFilter > -1:
-				knowsPPLeaderboard = glob.redis.get("lets:knows_pp_leaderboard:{}".format(userID)) is not None
-				if modsFilter & mods.AUTOPLAY > 0 and not knowsPPLeaderboard:
-					glob.redis.set("lets:knows_pp_leaderboard:{}".format(userID), "1", 1800)
-					glob.redis.publish("peppy:notification", json.dumps({
-						"userID": userID,
-						"message": "Hi there! Scores are now sorted by PP. You can change scores sort mode by toggling the 'Auto' mod and filtering the leaderboard by Active mods. Note that this option is available only for donors and we don't recommend saving replays when the leaderboard is sorted by pp, due to some client limitations."
-					}))
 
 
 			# Datadog stats

@@ -21,8 +21,7 @@ def printServerStartHeader(asciiArt):
 		printColored("| |__ | _|   | |  \\__ \\  ", bcolors.GREEN)
 		printColored("|____||___|  |_|  |___/  \n", bcolors.GREEN)
 
-	printColored("> Welcome to the Latest Essential Tatoe Server {}".format(glob.VERSION), bcolors.GREEN)
-	printColored("> Common submodule v{}".format(glob.COMMON_VERSION), bcolors.GREEN)
+	printColored("> Welcome to the Latest Essential Tatoe Server v{}".format(glob.VERSION), bcolors.GREEN)
 	printColored("> Made by the Ripple team", bcolors.GREEN)
 	printColored("> {}https://zxq.co/ripple/lets".format(bcolors.UNDERLINE), bcolors.GREEN)
 	printColored("> Press CTRL+C to exit\n", bcolors.GREEN)

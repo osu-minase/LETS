@@ -1,7 +1,6 @@
 import time
 
 from objects import beatmap
-from common import generalUtils
 from common.constants import gameModes
 from common.log import logUtils as log
 from common.ripple import userUtils
@@ -26,7 +25,6 @@ class score:
 	def __init__(self, scoreID = None, rank = None, setData = True):
 		"""
 		Initialize a (empty) score object.
-
 		scoreID -- score ID, used to get score data from db. Optional.
 		rank -- score rank. Optional
 		setData -- if True, set score data from db using scoreID. Optional.
@@ -61,7 +59,7 @@ class score:
 		self.oldPersonalBest = 0
 		self.rankedScoreIncrease = 0
 
-		if scoreID is not None and setData:
+		if scoreID is not None and setData == True:
 			self.setDataFromDB(scoreID, rank)
 
 	def calculateAccuracy(self):
@@ -104,7 +102,6 @@ class score:
 	def setRank(self, rank):
 		"""
 		Force a score rank
-
 		rank -- new score rank
 		"""
 		self.rank = rank
@@ -113,7 +110,6 @@ class score:
 		"""
 		Set this object's score data from db
 		Sets playerUserID too
-
 		scoreID -- score ID
 		rank -- rank in scoreboard. Optional.
 		"""
@@ -125,14 +121,13 @@ class score:
 		"""
 		Set this object's score data from dictionary
 		Doesn't set playerUserID
-
 		data -- score dictionarty
 		rank -- rank in scoreboard. Optional.
 		"""
 		#print(str(data))
 		self.scoreID = data["id"]
 		if "username" in data:
-			self.playerName = data["username"]
+			self.playerName = userUtils.getClan(data["userid"])
 		else:
 			self.playerName = userUtils.getUsername(data["userid"])
 		self.playerUserID = data["userid"]
@@ -158,7 +153,6 @@ class score:
 	def setDataFromScoreData(self, scoreData):
 		"""
 		Set this object's score data from scoreData list (submit modular)
-
 		scoreData -- scoreData list
 		"""
 		if len(scoreData) >= 16:
@@ -211,12 +205,11 @@ class score:
 		Set this score completed status and rankedScoreIncrease
 		"""
 		self.completed = 0
-		if self.passed and scoreUtils.isRankable(self.mods):
+		if self.passed == True and scoreUtils.isRankable(self.mods):
 			# Get userID
 			userID = userUtils.getID(self.playerName)
 
 			# Make sure we don't have another score identical to this one
-			# TODO: time check
 			duplicate = glob.db.fetch("SELECT id FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND score = %s LIMIT 1", [userID, self.fileMd5, self.gameMode, self.score])
 			if duplicate is not None:
 				# Found same score in db. Don't save this score.
@@ -225,26 +218,54 @@ class score:
 
 			# No duplicates found.
 			# Get right "completed" value
-			personalBest = glob.db.fetch("SELECT id,{}score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1".format(
-					glob.conf.extra["lets"]["submit"]["score-overwrite"] == "score" and " " or " {}, ".format(glob.conf.extra["lets"]["submit"]["score-overwrite"])
-				),
-				[userID, self.fileMd5, self.gameMode])
+			personalBest = glob.db.fetch("SELECT id, pp, score FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed = 3 LIMIT 1", [userID, self.fileMd5, self.gameMode])
 			if personalBest is None:
 				# This is our first score on this map, so it's our best score
 				self.completed = 3
 				self.rankedScoreIncrease = self.score
 				self.oldPersonalBest = 0
 			else:
+				b = beatmap.beatmap(self.fileMd5, 0)
+				if b.rankedStatus != rankedStatuses.PENDING:
+					if self.pp == 0.00:
+						self.calculatePP(b=b)
+					if self.pp > personalBest["pp"] or (self.pp == personalBest["pp"] and self.score > personalBest["score"]):
+						self.completed = 3
+						self.rankedScoreIncrease = self.score - personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+						if self.score <= personalBest['score'] :
+							self.oldPersonalBest = 0
+							glob.db.execute("UPDATE scores SET completed = 4 WHERE id = %s",[personalBest["id"]])
+						sub = True
+					else:
+						self.completed = 2
+						withMods = glob.db.fetch("SELECT id, score, mods, pp FROM scores WHERE userid = %s AND beatmap_md5 = %s AND play_mode = %s AND completed>= 3 AND mods = %s ORDER BY pp DESC LIMIT 1", [userID, self.fileMd5, self.gameMode, self.mods])
+						if withMods is not None:
+							if self.score > withMods["score"]:
+								self.rankedScoreIncrease = self.score - withMods["score"]
+								self.oldPersonalBest = 0
+								if(withMods["id"] != personalBest["id"]):
+									self.oldPersonalBest = withMods["id"]
+								self.completed = 4
+						else:
+							self.completed = 4
+							self.rankedScoreIncrease = 0 
+							self.oldPersonalBest = 0 
+				else:		
+					if (self.score > personalBest["score"]):
+						self.completed = 3
+						self.rankedScoreIncrease = self.score - personalBest["score"]
+						self.oldPersonalBest = personalBest["id"]
+					else:
+						self.completed = 2
+					sub = True
+						
 				# Compare personal best's score with current score
-				if getattr(self, glob.conf.extra["lets"]["submit"]["score-overwrite"]) > personalBest[glob.conf.extra["lets"]["submit"]["score-overwrite"]]:
-					# New best score
-					self.completed = 3
-					self.rankedScoreIncrease = self.score-personalBest["score"]
-					self.oldPersonalBest = personalBest["id"]
-				else:
-					self.completed = 2
-					self.rankedScoreIncrease = 0
-					self.oldPersonalBest = 0
+				if(sub == False):
+					if(self.completed != 4):
+						self.completed = 2
+						self.rankedScoreIncrease = 0
+						self.oldPersonalBest = 0
 
 		log.debug("Completed status: {}".format(self.completed))
 
@@ -253,10 +274,10 @@ class score:
 		Save this score in DB (if passed and mods are valid)
 		"""
 		# Add this score
+		query = "INSERT INTO scores (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+		self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, 1 if self.fullCombo == True else 0, self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp]))
 		if self.completed >= 2:
-			query = "INSERT INTO scores (id, beatmap_md5, userid, score, max_combo, full_combo, mods, 300_count, 100_count, 50_count, katus_count, gekis_count, misses_count, time, play_mode, completed, accuracy, pp) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-			self.scoreID = int(glob.db.execute(query, [self.fileMd5, userUtils.getID(self.playerName), self.score, self.maxCombo, int(self.fullCombo), self.mods, self.c300, self.c100, self.c50, self.cKatu, self.cGeki, self.cMiss, self.playDateTime, self.gameMode, self.completed, self.accuracy * 100, self.pp]))
-
+		
 			# Set old personal best to completed = 2
 			if self.oldPersonalBest != 0:
 				glob.db.execute("UPDATE scores SET completed = 2 WHERE id = %s", [self.oldPersonalBest])
@@ -270,7 +291,7 @@ class score:
 			b = beatmap.beatmap(self.fileMd5, 0)
 
 		# Calculate pp
-		if b.rankedStatus >= rankedStatuses.RANKED and b.rankedStatus != rankedStatuses.UNKNOWN \
+		if b.rankedStatus >= rankedStatuses.RANKED and b.rankedStatus and b.rankedStatus != rankedStatuses.PENDING and b.rankedStatus != rankedStatuses.UNKNOWN \
 			and scoreUtils.isRankable(self.mods) and self.passed and self.gameMode in score.PP_CALCULATORS:
 			calculator = score.PP_CALCULATORS[self.gameMode](b, self)
 			self.pp = calculator.pp

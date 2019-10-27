@@ -62,7 +62,6 @@ class handler(requestsManager.asyncRequestHandler):
 			beatmapID = int(self.get_argument("b", default=0))
 			beatmapSetID = int(self.get_argument("s", default=0))
 			scoreID = int(self.get_argument("r", default=0))
-			mode = int(self.get_argument("m", default=0))
 		except ValueError:
 			raise exceptions.invalidArgumentsException(MODULE_NAME)
 
@@ -83,8 +82,8 @@ class handler(requestsManager.asyncRequestHandler):
 
 			# Fetch these comments
 			comments = glob.db.fetchAll(
-				"SELECT * FROM comments WHERE {} = %s AND mode = %s ORDER BY `time`".format(x["db_type"]),
-				(x["value"], mode)
+				"SELECT * FROM comments WHERE {} = %s ORDER BY `time`".format(x["db_type"]),
+				(x["value"],)
 			)
 
 			# Output comments
@@ -100,7 +99,6 @@ class handler(requestsManager.asyncRequestHandler):
 	def _addComment(self):
 		username = self.get_argument("u")
 		target = self.get_argument("target", default=None)
-		mode = int(self.get_argument("m", default=0))
 		specialFormat = self.get_argument("f", default=None)
 		userID = userUtils.getID(username)
 
@@ -170,8 +168,8 @@ class handler(requestsManager.asyncRequestHandler):
 
 		# Store the comment
 		glob.db.execute(
-			"INSERT INTO comments ({}, user_id, mode, comment, `time`, who, special_format) "
-			"VALUES (%s, %s, %s, %s, %s, %s, %s)".format(column),
-			(value, userID, mode, comment, time_, who, specialFormat)
+			"INSERT INTO comments ({}, user_id, comment, `time`, who, special_format) "
+			"VALUES (%s, %s, %s, %s, %s, %s)".format(column),
+			(value, userID, comment, time_, who, specialFormat)
 		)
-		log.info("Submitted {} ({}) comment, mode {}, user {}: '{}'".format(column, value, mode, userID, comment))
+		log.info("Submitted {} ({}) comment, user {}: '{}'".format(column, value, userID, comment))

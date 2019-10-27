@@ -41,8 +41,8 @@ class handler(requestsManager.asyncRequestHandler):
 			if ranked is None:
 				output = "no exist"
 				return
-			if ranked["ranked"] < rankedStatuses.RANKED:
-				output = "not ranked"
+			if ranked["ranked"] < rankedStatuses.PENDING:
+				output = "unabled to be rated"
 				return
 
 			rating = glob.db.fetch("SELECT rating FROM beatmaps WHERE beatmap_md5 = %s LIMIT 1", (checksum,))

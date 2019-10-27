@@ -5,6 +5,8 @@ class Chart:
     """
     Chart base class
     """
+    
+    
     def __init__(self, id_, url, name):
         """
         Initializes a new chart.
@@ -65,7 +67,7 @@ class BeatmapChart(Chart):
         :param new_score: score object of the currently submitted score
         :param beatmap_id: beatmap id, for the clickable link
         """
-        super(BeatmapChart, self).__init__("beatmap", f"https://ripple.moe/b/{beatmap_id}", "Beatmap Ranking")
+        super(BeatmapChart, self).__init__("beatmap", f"https://yozora.pw/b/{beatmap_id}", "Beatmap Ranking")
         self.rank = (old_score.rank if old_score is not None else None, new_score.rank)
         self.max_combo = (old_score.maxCombo if old_score is not None else None, new_score.maxCombo)
         self.accuracy = (old_score.accuracy * 100 if old_score is not None else None, new_score.accuracy * 100)
@@ -81,6 +83,7 @@ class BeatmapChart(Chart):
             **self.before_after_dict("maxCombo", self.max_combo),
             **self.before_after_dict("accuracy", self.accuracy),
             **self.before_after_dict("rankedScore", self.ranked_score),
+            **self.before_after_dict("totalScore", self.ranked_score),
             **self.before_after_dict("pp", self.pp),
             "onlineScoreId": self.score_id
         }
@@ -88,9 +91,9 @@ class BeatmapChart(Chart):
 
 class OverallChart(Chart):
     """
-    Overall ranking chart + achievements
+    Overall ranking chart  achievements
     """
-    def __init__(self, user_id, old_user_stats, new_user_stats, score, new_achievements, old_rank, new_rank):
+    def __init__(self, user_id, old_user_stats, new_user_stats, maxCombo, score, new_achievements, old_rank, new_rank):
         """
         Initializes a new OverallChart object.
         This constructor sucks because LETS itself sucks.
@@ -103,11 +106,11 @@ class OverallChart(Chart):
         :param old_rank: global rank before submitting the scpre
         :param new_rank: global rank after submitting the score
         """
-        super(OverallChart, self).__init__("overall", f"https://ripple.moe/u/{user_id}", "Overall Ranking")
+        super(OverallChart, self).__init__("overall", f"https://yozora.pw/u/{user_id}", "Overall Ranking")
         self.rank = (old_rank, new_rank)
         self.ranked_score = (old_user_stats["rankedScore"], new_user_stats["rankedScore"])
         self.total_score = (old_user_stats["totalScore"], new_user_stats["totalScore"])
-        self.max_combo = (0, 0)     # TODO: Implement
+        self.max_combo = (maxCombo, maxCombo)
         self.accuracy = (old_user_stats["accuracy"], new_user_stats["accuracy"])
         self.pp = (old_user_stats["pp"], new_user_stats["pp"])
         self.new_achievements = new_achievements
