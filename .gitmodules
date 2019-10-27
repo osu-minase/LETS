@@ -1,6 +1,6 @@
 [submodule "common"]
 	path = common
-	url = git@github.com:osu-minase/common.git
+	url = https://github.com/ezppfarm/yozora-python-common
 [submodule "secret"]
 	path = secret
 	url = git@github.com:osu-minase/secret.git
