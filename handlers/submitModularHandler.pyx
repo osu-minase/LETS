@@ -184,7 +184,7 @@ class handler(requestsManager.asyncRequestHandler):
 					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")		
 			else: # Vanilla
-				if (s.pp >= 700 and s.gameMode == gameModes.STD) and userID not in gamers:
+				if (s.pp >= 1300 and s.gameMode == gameModes.STD) and userID not in gamers:
 					userUtils.restrict(userID)
 					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
