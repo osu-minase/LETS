@@ -271,8 +271,5 @@ if __name__ == "__main__":
 		glob.application.listen(serverPort, address=glob.conf.config["server"]["host"])
 		tornado.ioloop.IOLoop.instance().start()
 	finally:
-		# Perform some clean up
-		print("> Disposing server... ")
-		glob.fileBuffers.flushAll()
-		consoleHelper.printColored("Goodbye!", bcolors.GREEN)
+		print('something happend... goodbye!')
 		exit()
