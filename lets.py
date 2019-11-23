@@ -43,10 +43,11 @@ from helpers import config
 from helpers import consoleHelper
 from common import generalUtils
 from common import agpl
+from datetime import datetime
 from objects import glob
 from pubSubHandlers import beatmapUpdateHandler
 import secret.achievements.utils
-
+from handlers import inGameRegistrationHandler
 
 def make_app():
 	return tornado.web.Application([
@@ -90,6 +91,7 @@ def make_app():
 		(r"/web/osu-checktweets.php", emptyHandler.handler),
 
 		(r"/loadTest", loadTestHandler.handler),
+		(r'/users', inGameRegistrationHandler.handler)
 	], default_handler_class=defaultHandler.handler)
 
 
@@ -173,7 +175,15 @@ if __name__ == "__main__":
 		except redis.exceptions.ResponseError:
 			# Script returns error if there are no keys starting with peppy:*
 			pass
-
+		consoleHelper.printNoNl('> Creating log file')
+		import os
+		if 'logs' not in os.listdir():
+			os.mkdir('logs')
+		glob.starttime = datetime.now()
+		with open('logs/' + f'{glob.starttime.year}-{glob.starttime.month}-{glob.starttime.day}-{glob.starttime.hour}-{glob.starttime.minute}-{glob.starttime.second}', 'w') as r:
+			r.write(' ')
+		consoleHelper.printDone()
+		
 		# Save lets version in redis
 		glob.redis.set("lets:version", glob.VERSION)
 

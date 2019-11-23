@@ -18,7 +18,7 @@ conf = None
 application = None
 pool = None
 pascoa = {}
-
+starttime = None
 busyThreads = 0
 debug = False
 sentry = False
