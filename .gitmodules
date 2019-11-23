@@ -3,7 +3,7 @@
 	url = https://github.com/osu-minase/common.git
 [submodule "secret"]
 	path = secret
-	url = git@github.com:osu-minase/secret.git
+	url = https://github.com/osu-minase/secret
 [submodule "pp/oppai-ng"]
 	path = pp/oppai-ng
 	url = https://github.com/Francesco149/oppai-ng.git
