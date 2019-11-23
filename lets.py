@@ -15,7 +15,7 @@ import shutil
 from distutils.version import LooseVersion
 from handlers import inGameRegistrationHandler
 from constants import rankedStatuses
-
+from datetime import datetime
 from common.constants import bcolors, mods
 from common.db import dbConnector
 from common.ddog import datadogClient
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
 		# Save lets version in redis
 		glob.redis.set("lets:version", glob.VERSION)
-		
+
 		consoleHelper.printNoNl('> Creating log file')
 		import os
 		if 'logs' not in os.listdir():
