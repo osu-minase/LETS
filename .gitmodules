@@ -1,9 +1,9 @@
 [submodule "common"]
 	path = common
-	url = https://github.com/ezppfarm/yozora-python-common
+	url = https://github.com/osu-minase/common.git
 [submodule "secret"]
 	path = secret
-	url = git@github.com:osu-minase/secret.git
+	url = https://github.com/osu-minase/secret.git
 [submodule "pp/oppai-ng"]
 	path = pp/oppai-ng
 	url = https://github.com/Francesco149/oppai-ng.git
@@ -16,4 +16,4 @@
 	url = https://github.com/Francesco149/oppai-ng.git
 [submodule "pp/oppai-relax"]
 	path = pp/oppai-relax
-	url = https://github.com/osuAkatsuki/akatsuki-pp-relax
+	url = https://github.com/osuAkatsuki/akatsuki-pp-relax.git
