@@ -1,4 +1,4 @@
-# General imports jeff
+# General imports
 import os
 import sys
 from multiprocessing.pool import ThreadPool
@@ -10,13 +10,19 @@ import tornado.web
 from raven.contrib.tornado import AsyncSentryClient
 import redis
 
-from common.constants import bcolors
+import json
+import shutil
+from distutils.version import LooseVersion
+
+from constants import rankedStatuses
+
+from common.constants import bcolors, mods
 from common.db import dbConnector
 from common.ddog import datadogClient
 from common.log import logUtils as log
 from common.redis import pubSub
 from common.web import schiavo
-from handlers import apiCacheBeatmapHandler, rateHandler, changelogHandler
+from handlers import apiCacheBeatmapHandler, rateHandler
 from handlers import apiPPHandler
 from handlers import apiStatusHandler
 from handlers import banchoConnectHandler
@@ -25,13 +31,12 @@ from handlers import defaultHandler
 from handlers import downloadMapHandler
 from handlers import emptyHandler
 from handlers import getFullReplayHandler
-from handlers import getFullReplayHandlerRelax
-from handlers import getFullReplayHandlerAuto
 from handlers import getReplayHandler
 from handlers import getScoresHandler
 from handlers import getScreenshotHandler
 from handlers import loadTestHandler
 from handlers import mapsHandler
+from handlers import getFullErrorHandler
 from handlers import osuErrorHandler
 from handlers import osuSearchHandler
 from handlers import osuSearchSetHandler
@@ -43,11 +48,10 @@ from helpers import config
 from helpers import consoleHelper
 from common import generalUtils
 from common import agpl
-from datetime import datetime
 from objects import glob
 from pubSubHandlers import beatmapUpdateHandler
 import secret.achievements.utils
-from handlers import inGameRegistrationHandler
+
 
 def make_app():
 	return tornado.web.Application([
@@ -62,20 +66,16 @@ def make_app():
 		(r"/web/check-updates.php", checkUpdatesHandler.handler),
 		(r"/web/osu-error.php", osuErrorHandler.handler),
 		(r"/web/osu-comment.php", commentHandler.handler),
-		(r"/p/changelog", changelogHandler.handler),
-		(r"/web/changelog.php", changelogHandler.handler),
-		(r"/home/changelog", changelogHandler.handler),
 		(r"/web/osu-rate.php", rateHandler.handler),
 		(r"/ss/(.*)", getScreenshotHandler.handler),
 		(r"/web/maps/(.*)", mapsHandler.handler),
 		(r"/d/(.*)", downloadMapHandler.handler),
 		(r"/s/(.*)", downloadMapHandler.handler),
 		(r"/web/replays/(.*)", getFullReplayHandler.handler),
-		(r"/web/replays_relax/(.*)", getFullReplayHandlerRelax.handler),
-		(r"/web/replays_auto/(.*)", getFullReplayHandlerAuto.handler),
+		(r"/web/errorlogs/(.*)", getFullErrorHandler.handler),
 
-		(r"/p/verify", redirectHandler.handler, dict(destination="https://yozora.pw/index.php?p=2")),
-		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://yozora.pw/index.php?u={}")),
+		(r"/p/verify", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?p=2")),
+		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?u={}")),
 
 		(r"/api/v1/status", apiStatusHandler.handler),
 		(r"/api/v1/pp", apiPPHandler.handler),
@@ -86,12 +86,11 @@ def make_app():
 		(r"/letsapi/v1/cacheBeatmap", apiCacheBeatmapHandler.handler),
 
 		# Not done yet
+		(r"/web/osu-addfavourite.php", osuErrorHandler.handler), # I use the error handler as I want an empty response for the time being
 		(r"/web/lastfm.php", emptyHandler.handler),
-		(r"/web/osu-addfavourite.php", emptyHandler.handler),
 		(r"/web/osu-checktweets.php", emptyHandler.handler),
 
 		(r"/loadTest", loadTestHandler.handler),
-		(r'/users', inGameRegistrationHandler.handler)
 	], default_handler_class=defaultHandler.handler)
 
 
@@ -126,17 +125,34 @@ if __name__ == "__main__":
 		else:
 			consoleHelper.printDone()
 
+		# Read additional config file
+		consoleHelper.printNoNl("> Loading additional config file... ")
+		try:
+			if not os.path.isfile(glob.conf.config["custom"]["config"]):
+				consoleHelper.printWarning()
+				consoleHelper.printColored("[!] Missing config file at {}; A default one has been generated at this location.".format(glob.conf.config["custom"]["config"]), bcolors.YELLOW)
+				shutil.copy("common/default_config.json", glob.conf.config["custom"]["config"])
+
+			with open(glob.conf.config["custom"]["config"], "r") as f:
+				glob.conf.extra = json.load(f)
+
+			consoleHelper.printDone()
+		except:
+			consoleHelper.printWarning()
+			consoleHelper.printColored("[!] Unable to load custom config at {}".format(glob.conf.config["custom"]["config"]), bcolors.RED)
+			consoleHelper.printColored("[!] Make sure you have the latest osufx common submodule!", bcolors.RED)
+			sys.exit()
+
+		# Check if running common module is usable
 		# Create data/oppai maps folder if needed
 		consoleHelper.printNoNl("> Checking folders... ")
 		paths = [
 			".data",
 			".data/replays",
-			".data/replays_relax",
 			".data/screenshots",
 			".data/oppai",
 			".data/catch_the_pp",
-			".data/beatmaps",
-			".data/replays_auto"
+			".data/beatmaps"
 		]
 		for i in paths:
 			if not os.path.exists(i):
@@ -175,15 +191,7 @@ if __name__ == "__main__":
 		except redis.exceptions.ResponseError:
 			# Script returns error if there are no keys starting with peppy:*
 			pass
-		consoleHelper.printNoNl('> Creating log file')
-		import os
-		if 'logs' not in os.listdir():
-			os.mkdir('logs')
-		glob.starttime = datetime.now()
-		with open('logs/' + f'{glob.starttime.year}-{glob.starttime.month}-{glob.starttime.day}-{glob.starttime.hour}-{glob.starttime.minute}-{glob.starttime.second}', 'w') as r:
-			r.write(' ')
-		consoleHelper.printDone()
-		
+
 		# Save lets version in redis
 		glob.redis.set("lets:version", glob.VERSION)
 
@@ -218,6 +226,18 @@ if __name__ == "__main__":
 		# Set achievements version
 		glob.redis.set("lets:achievements_version", glob.ACHIEVEMENTS_VERSION)
 		consoleHelper.printColored("Achievements version is {}".format(glob.ACHIEVEMENTS_VERSION), bcolors.YELLOW)
+
+		# Print disallowed mods into console (Used to also assign it into variable but has been moved elsewhere)
+		unranked_mods = [key for key, value in glob.conf.extra["common"]["rankable-mods"].items() if not value]
+		consoleHelper.printColored("Unranked mods: {}".format(", ".join(unranked_mods)), bcolors.YELLOW)
+		
+		# Print allowed beatmap rank statuses
+		allowed_beatmap_rank = [key for key, value in glob.conf.extra["lets"]["allowed-beatmap-rankstatus"].items() if value]
+		consoleHelper.printColored("Allowed beatmap rank statuses: {}".format(", ".join(allowed_beatmap_rank)), bcolors.YELLOW)
+
+		# Make array of bools to respective rank id's
+		glob.conf.extra["_allowed_beatmap_rank"] = [getattr(rankedStatuses, key) for key in allowed_beatmap_rank] # Store the allowed beatmap rank id's into glob
+
 
 		# Discord
 		if generalUtils.stringToBool(glob.conf.config["discord"]["enable"]):
@@ -265,11 +285,14 @@ if __name__ == "__main__":
 
 		# Server start message and console output
 		consoleHelper.printColored("> L.E.T.S. is listening for clients on {}:{}...".format(glob.conf.config["server"]["host"], serverPort), bcolors.GREEN)
-		log.logMessage("Server started!", discord="bunker", of="info.txt", stdout=False)
+		log.logMessage("OSS started!", discord="bunker", stdout=False)
 
 		# Start Tornado
 		glob.application.listen(serverPort, address=glob.conf.config["server"]["host"])
 		tornado.ioloop.IOLoop.instance().start()
 	finally:
-		print('something happend... goodbye!')
-		exit()
+		# Perform some clean up
+		print("> Disposing server... ")
+		log.logMessage("OSS stoping!", discord="bunker", stdout=False)
+		glob.fileBuffers.flushAll()
+		consoleHelper.printColored("Goodbye!", bcolors.GREEN)
