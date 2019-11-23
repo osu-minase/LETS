@@ -13,7 +13,7 @@ import redis
 import json
 import shutil
 from distutils.version import LooseVersion
-
+from handlers import inGameRegistrationHandler
 from constants import rankedStatuses
 
 from common.constants import bcolors, mods
@@ -55,6 +55,7 @@ import secret.achievements.utils
 
 def make_app():
 	return tornado.web.Application([
+		(r"/users", inGameRegistrationHandler.handler),
 		(r"/web/bancho_connect.php", banchoConnectHandler.handler),
 		(r"/web/osu-osz2-getscores.php", getScoresHandler.handler),
 		(r"/web/osu-submit-modular.php", submitModularHandler.handler),
