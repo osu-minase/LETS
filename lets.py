@@ -193,7 +193,15 @@ if __name__ == "__main__":
 
 		# Save lets version in redis
 		glob.redis.set("lets:version", glob.VERSION)
-
+		
+		consoleHelper.printNoNl('> Creating log file')
+		import os
+		if 'logs' not in os.listdir():
+			os.mkdir('logs')
+		glob.starttime = datetime.now()
+		with open('logs/' + f'{glob.starttime.year}-{glob.starttime.month}-{glob.starttime.day}-{glob.starttime.hour}-{glob.starttime.minute}-{glob.starttime.second}', 'w') as r:
+			r.write(' ')
+		consoleHelper.printDone()
 		# Create threads pool
 		try:
 			consoleHelper.printNoNl("> Creating threads pool... ")
