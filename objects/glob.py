@@ -3,7 +3,7 @@ import userStatsCache
 from common.ddog import datadogClient
 from common.files import fileBuffer, fileLocks
 from common.web import schiavo
-
+from datetime import datetime
 try:
 	with open("version") as f:
 		VERSION = f.read().strip()
@@ -18,7 +18,7 @@ conf = None
 application = None
 pool = None
 pascoa = {}
-starttime = None
+starttime = datetime.now()
 busyThreads = 0
 debug = False
 sentry = False
