@@ -36,7 +36,6 @@ from handlers import getScoresHandler
 from handlers import getScreenshotHandler
 from handlers import loadTestHandler
 from handlers import mapsHandler
-from handlers import getFullErrorHandler
 from handlers import osuErrorHandler
 from handlers import osuSearchHandler
 from handlers import osuSearchSetHandler
@@ -73,7 +72,6 @@ def make_app():
 		(r"/d/(.*)", downloadMapHandler.handler),
 		(r"/s/(.*)", downloadMapHandler.handler),
 		(r"/web/replays/(.*)", getFullReplayHandler.handler),
-		(r"/web/errorlogs/(.*)", getFullErrorHandler.handler),
 
 		(r"/p/verify", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?p=2")),
 		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?u={}")),
