@@ -9,7 +9,6 @@ import tornado.ioloop
 import tornado.web
 from raven.contrib.tornado import AsyncSentryClient
 import redis
-
 import json
 import shutil
 from distutils.version import LooseVersion
@@ -43,6 +42,8 @@ from handlers import redirectHandler
 from handlers import submitModularHandler
 from handlers import uploadScreenshotHandler
 from handlers import commentHandler
+from handlers import getFullReplayHandlerRelax
+from handlers import getFullReplayHandlerAuto
 from helpers import config
 from helpers import consoleHelper
 from common import generalUtils
@@ -72,9 +73,10 @@ def make_app():
 		(r"/d/(.*)", downloadMapHandler.handler),
 		(r"/s/(.*)", downloadMapHandler.handler),
 		(r"/web/replays/(.*)", getFullReplayHandler.handler),
-
-		(r"/p/verify", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?p=2")),
-		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://ripple.moe/index.php?u={}")),
+		(r"/web/replays_relax/(.*)", getFullReplayHandlerRelax.handler),
+		(r"/web/replays_auto/(.*)", getFullReplayHandlerAuto.handler),
+		(r"/p/verify", redirectHandler.handler, dict(destination="https://minase.tk/index.php?p=2")),
+		(r"/u/(.*)", redirectHandler.handler, dict(destination="https://minase.tk/index.php?u={}")),
 
 		(r"/api/v1/status", apiStatusHandler.handler),
 		(r"/api/v1/pp", apiPPHandler.handler),
