@@ -49,7 +49,7 @@ class handler(requestsManager.asyncRequestHandler):
 				raise exceptions.need2FAException(MODULE_NAME, username, ip)
 
 			# Get user ID
-			replayData = glob.db.fetch("SELECT scores.*, users.username AS uname FROM scores LEFT JOIN users ON scores.userid = users.id WHERE scores.id = %s", [replayID])
+			replayData = glob.db.fetch("SELECT * FROM scores, users.username AS uname FROM scores LEFT JOIN users ON scores.userid = users.id WHERE scores.id = %s", [replayID])
 			print(replayData)
 			if replayData == None:
 				replayData = glob.db.fetch("SELECT scores_relax.*, users.username AS uname FROM scores_relax LEFT JOIN users ON scores_relax.userid = users.id WHERE scores_relax.id = %s", [replayID])
