@@ -514,7 +514,7 @@ class handler(requestsManager.asyncRequestHandler):
 						userLogMsg = " Achieved Autopilot #{} rank on ".format(newScoreboard.personalBestRank)
 				else:
 					if beatmapInfo.rankedStatus == rankedStatuses.PENDING:
-						announceMsg = "[VANILLA] (UNRANKED) [https://minase.tk/?u={} {}] achieved rank #1({}) on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						announceMsg = "[VANILLA] (UNRANKED) [https://minase.tk/?u={} {}] achieved rank #1({}pp) on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
 									username.encode().decode("ASCII", "ignore"),
 									beatmapInfo.beatmapID,
@@ -524,7 +524,7 @@ class handler(requestsManager.asyncRequestHandler):
 								)
 						userLogMsg = " Achieved Unranked Vanilla #{} rank on ".format(newScoreboard.personalBestRank)
 					else:
-						announceMsg = "[VANILLA] [https://minase.tk/?u={} {}] achieved rank #1({}) on [https://osu.ppy.sh/b/{} {}] ({})".format(
+						announceMsg = "[VANILLA] [https://minase.tk/?u={} {}] achieved rank #1({}pp) on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
 									username.encode().decode("ASCII", "ignore"),
 									round(s.pp),
