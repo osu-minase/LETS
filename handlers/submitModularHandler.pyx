@@ -518,7 +518,7 @@ class handler(requestsManager.asyncRequestHandler):
 									userID,
 									username.encode().decode("ASCII", "ignore"),
 									beatmapInfo.beatmapID,
-									s.pp,
+									round(s.pp),
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
 								)
@@ -527,7 +527,7 @@ class handler(requestsManager.asyncRequestHandler):
 						announceMsg = "[VANILLA] [https://minase.tk/?u={} {}] achieved rank #1({}) on [https://osu.ppy.sh/b/{} {}] ({})".format(
 									userID,
 									username.encode().decode("ASCII", "ignore"),
-									s.pp,
+									round(s.pp),
 									beatmapInfo.beatmapID,
 									beatmapInfo.songName.encode().decode("ASCII", "ignore"),
 									gameModes.getGamemodeFull(s.gameMode)
