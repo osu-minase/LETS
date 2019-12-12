@@ -108,7 +108,7 @@ class beatmap:
 				])
 
 			except:
-				log.error("who the fuck knows ¯\_(ツ)_/¯ will try again on {}".format(self.beatmapID))
+				log.error("HMMMMMM, lets try again {}".format(self.beatmapID))
 				glob.db.execute("DELETE FROM beatmaps WHERE beatmap_id = %s ",[self.beatmapID])
 				glob.db.execute("INSERT INTO `beatmaps` (`id`, `beatmap_id`, `beatmapset_id`, `beatmap_md5`, `song_name`, `ar`, `od`, `difficulty_std`, `difficulty_taiko`, `difficulty_ctb`, `difficulty_mania`, `max_combo`, `hit_length`, `bpm`, `ranked`, `latest_update`, `ranked_status_freezed`) VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", [
 					self.beatmapID,
@@ -200,17 +200,7 @@ class beatmap:
 		# Check if osuapi is enabled
 		mainData = None
 		dataStd = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=0".format(md5))
-		dataTaiko = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=1".format(md5))
-		dataCtb = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=2".format(md5))
-		dataMania = osuapiHelper.osuApiRequest("get_beatmaps", "h={}&a=1&m=3".format(md5))
-		if dataStd is not None:
-			mainData = dataStd
-		elif dataTaiko is not None:
-			mainData = dataTaiko
-		elif dataCtb is not None:
-			mainData = dataCtb
-		elif dataMania is not None:
-			mainData = dataMania
+		mainData = dataStd
 
 		# If the beatmap is frozen and still valid from osu!api, return True so we don't overwrite anything
 		if mainData is not None and self.rankedStatusFrozen == 1:
@@ -220,17 +210,7 @@ class beatmap:
 		if mainData is None:
 			log.debug("osu!api data is None")
 			dataStd = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=0".format(beatmapSetID))
-			dataTaiko = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=1".format(beatmapSetID))
-			dataCtb = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=2".format(beatmapSetID))
-			dataMania = osuapiHelper.osuApiRequest("get_beatmaps", "s={}&a=1&m=3".format(beatmapSetID))
-			if dataStd is not None:
-				mainData = dataStd
-			elif dataTaiko is not None:
-				mainData = dataTaiko
-			elif dataCtb is not None:
-				mainData = dataCtb
-			elif dataMania is not None:
-				mainData = dataMania
+			mainData = dataStd
 
 			if mainData is None:
 				# Still no data, beatmap is not submitted
@@ -257,14 +237,7 @@ class beatmap:
 		self.starsTaiko = 0.0
 		self.starsCtb = 0.0
 		self.starsMania = 0.0
-		if dataStd is not None:
-			self.starsStd = float(dataStd["difficultyrating"])
-		if dataTaiko is not None:
-			self.starsTaiko = float(dataTaiko["difficultyrating"])
-		if dataCtb is not None:
-			self.starsCtb = float(dataCtb["difficultyrating"])
-		if dataMania is not None:
-			self.starsMania = float(dataMania["difficultyrating"])
+		self.starsStd = float(dataStd["difficultyrating"])
 
 		self.maxCombo = int(mainData["max_combo"]) if mainData["max_combo"] is not None else 0
 		self.hitLength = int(mainData["hit_length"])

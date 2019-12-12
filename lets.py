@@ -37,7 +37,7 @@ from handlers import loadTestHandler
 from handlers import mapsHandler
 from handlers import osuErrorHandler
 from handlers import osuSearchHandler
-from handlers import osuSearchSetHandler
+from handlers import osuSearchSetHandler#encode("utf-8", "ignore").decode("utf-8")
 from handlers import redirectHandler
 from handlers import submitModularHandler
 from handlers import uploadScreenshotHandler

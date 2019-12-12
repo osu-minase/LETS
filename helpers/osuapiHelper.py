@@ -39,6 +39,7 @@ def osuApiRequest(request, params, getFirst=True):
 	finally:
 		glob.dog.increment(glob.DATADOG_PREFIX+".osu_api.requests")
 		log.debug(str(resp).encode("utf-8"))
+		
 		return resp
 
 def getOsuFileFromName(fileName):
