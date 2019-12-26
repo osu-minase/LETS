@@ -15,3 +15,7 @@
 [submodule "pp/oppai-relax"]
 	path = pp/oppai-relax
 	url = https://github.com/osuAkatsuki/akatsuki-pp-relax.git
+
+[submodule "common"]
+	path = common
+	url = https://github.com/osu-minase/common.git
