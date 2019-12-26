@@ -174,17 +174,17 @@ class handler(requestsManager.asyncRequestHandler):
 			# for fuck sake freddie
 			gamers = [1317]
 			if UsingRelax: 
-				if (s.pp >= 2000 and s.gameMode == gameModes.STD) and userID not in RXLIST:
+				if (s.pp >= 5000 and s.gameMode == gameModes.STD) and userID not in RXLIST:
 					userUtils.restrict(userID)
 					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
 			elif UsingAuto:
-				if (s.pp >= 3000 and s.gameMode == gameModes.STD) and userID not in APLIST:
+				if (s.pp >= 5000 and s.gameMode == gameModes.STD) and userID not in APLIST:
 					userUtils.restrict(userID)
 					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")		
 			else: # Vanilla
-				if (s.pp >= 1300 and s.gameMode == gameModes.STD) and userID not in gamers:
+				if (s.pp >= 900 and s.gameMode == gameModes.STD) and userID not in gamers:
 					userUtils.restrict(userID)
 					userUtils.appendNotes(userID, "Restricted due to too high pp gain ({}pp)".format(s.pp))
 					log.warning("**{}** ({}) has been restricted due to too high pp gain **({}pp)**".format(username, userID, s.pp), "cm")
